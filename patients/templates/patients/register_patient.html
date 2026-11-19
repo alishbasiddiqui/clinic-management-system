@@ -1,0 +1,33 @@
+
+{% extends 'patients/base.html' %}
+
+{% block title %}Register Patient{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>Patient Registration</h2>
+
+    <p class="muted">
+        Enter patient details, payment and doctor assignment.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+            <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+
+                {% for error in field.errors %}
+                    <p class="error">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <button type="submit">Register Patient</button>
+    </form>
+</section>
+{% endblock %}
