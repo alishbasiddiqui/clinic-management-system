@@ -1,0 +1,23 @@
+{% extends "doctor/base.html" %}
+{% block title %}History - {{ patient.name }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'patient_detail' patient.token %}">&larr; Back to patient</a></p>
+<h2>Consultation history: {{ patient.name }}</h2>
+{% for visit in visits %}
+<div class="card">
+    <dl>
+        <dt>Visit number</dt><dd>{{ forloop.counter }}</dd>
+        <dt>Date and time</dt><dd>{{ visit.date_time|date:"Y-m-d H:i:s" }}</dd>
+        <dt>Doctor</dt><dd>{{ visit.doctor }}</dd>
+        <dt>Problem</dt><dd>{{ visit.problem }}</dd>
+        <dt>Priority</dt><dd>{{ visit.priority }}</dd>
+        <dt>Examination</dt><dd>{{ visit.examination|linebreaksbr }}</dd>
+        <dt>Status</dt><dd>{{ visit.status }}</dd>
+        <dt>Prescription</dt>
+        <dd>{% for rx in visit.prescriptions.all %}{{ rx.medicine }} | Dosage: {{ rx.dosage }} | {{ rx.instructions }}{% if not forloop.last %}<br>{% endif %}{% empty %}No prescription recorded.{% endfor %}</dd>
+    </dl>
+</div>
+{% empty %}
+<div class="card muted">No completed consultation records found.</div>
+{% endfor %}
+{% endblock %}

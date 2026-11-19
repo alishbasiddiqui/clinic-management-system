@@ -1,0 +1,17 @@
+{% if patients %}
+<table>
+    <tr><th>Token</th><th>Name</th><th>Problem</th><th>Priority</th><th>Status</th><th></th></tr>
+    {% for p in patients %}
+    <tr>
+        <td>{{ p.token }}</td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.problem }}</td>
+        <td><span class="badge {{ p.priority }}">{{ p.priority }}</span></td>
+        <td><span class="badge st-{{ p.status|cut:' ' }}">{{ p.status }}</span></td>
+        <td><a href="{% url 'patient_detail' p.token %}">Open</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p class="muted">{{ empty }}</p>
+{% endif %}

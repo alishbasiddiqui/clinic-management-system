@@ -1,0 +1,67 @@
+{% extends "doctor/base.html" %}
+{% block title %}{{ patient.name }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'dashboard' %}">&larr; Back to dashboard</a></p>
+
+{% if patient.is_emergency and patient.status != "Completed" %}
+<div class="alert">EMERGENCY PRIORITY: arrange immediate clinical assessment.</div>
+{% endif %}
+
+<div class="card">
+    <h2>Patient details</h2>
+    <dl>
+        <dt>Token</dt><dd>{{ patient.token }}</dd>
+        <dt>Patient ID</dt><dd>{{ patient.patient_id }}</dd>
+        <dt>Name</dt><dd>{{ patient.name }}</dd>
+        <dt>Age / Gender</dt><dd>{{ patient.age }} / {{ patient.gender }}</dd>
+        <dt>Reported problem</dt><dd>{{ patient.problem }}</dd>
+        <dt>Priority</dt><dd><span class="badge {{ patient.priority }}">{{ patient.priority }}</span></dd>
+        <dt>Status</dt><dd><span class="badge st-{{ patient.status|cut:' ' }}">{{ patient.status }}</span></dd>
+        <dt>Examination</dt><dd>{{ patient.examination|default:"—"|linebreaksbr }}</dd>
+    </dl>
+    <p><a href="{% url 'history' patient.token %}">View consultation history</a></p>
+</div>
+
+<div class="card">
+    <h2>Current prescription</h2>
+    {% if prescriptions %}
+    <table>
+        <tr><th>Medicine</th><th>Dosage</th><th>Instructions</th></tr>
+        {% for rx in prescriptions %}
+        <tr><td>{{ rx.medicine }}</td><td>{{ rx.dosage }}</td><td>{{ rx.instructions }}</td></tr>
+        {% endfor %}
+    </table>
+    {% else %}<p class="muted">No prescription recorded.</p>{% endif %}
+</div>
+
+{% if patient.status != "Completed" %}
+<div class="card">
+    <h2>1. Examine patient</h2>
+    <form method="post" action="{% url 'examine' patient.token %}">
+        {% csrf_token %}
+        <label for="examination">Examination findings</label>
+        <textarea name="examination" id="examination" rows="4" required>{{ patient.examination }}</textarea>
+        <p><button type="submit">Save findings</button></p>
+    </form>
+</div>
+
+<div class="card">
+    <h2>2. Provide prescription</h2>
+    <form method="post" action="{% url 'prescribe' patient.token %}">
+        {% csrf_token %}
+        <label for="medicine">Medicine name</label><input type="text" name="medicine" id="medicine" required>
+        <label for="dosage">Dosage</label><input type="text" name="dosage" id="dosage" required>
+        <label for="instructions">Instructions</label><input type="text" name="instructions" id="instructions" required>
+        <p><button type="submit">Add prescription</button></p>
+    </form>
+</div>
+
+<div class="card">
+    <h2>3. Complete token</h2>
+    <form method="post" action="{% url 'complete' patient.token %}">
+        {% csrf_token %}
+        <button type="submit" class="green">Mark as completed</button>
+    </form>
+</div>
+{% endif %}
+{% endblock %}
