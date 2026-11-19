@@ -5,6 +5,7 @@ from django.urls import reverse
 from .models import ClinicProfile
 
 User = get_user_model()
+# sample 
 
 
 class ClinicAuthenticationTests(TestCase):
