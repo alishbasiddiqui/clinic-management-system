@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Receptionist Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="brand">Clinic Management System</p>
+        <h1>Receptionist Dashboard</h1>
+      </div>
+      <div class="user-bar">
+        <span>Logged in as: {{ user.get_username }}</span>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="secondary-button">Logout</button>
+        </form>
+      </div>
+    </header>
+
+    <main class="dashboard-container">
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li class="message {{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <section class="summary-section">
+        <h2>Overview</h2>
+        <div class="summary-grid">
+          <article class="summary-card">
+            <h3>Total patients registered today</h3>
+            <p>{{ summary.patients_registered_today }}</p>
+          </article>
+          <article class="summary-card">
+            <h3>Total patients currently waiting</h3>
+            <p>{{ summary.waiting_patients }}</p>
+          </article>
+          <article class="summary-card">
+            <h3>Emergency patients waiting</h3>
+            <p>{{ summary.emergency_waiting }}</p>
+          </article>
+        </div>
+      </section>
+
+      {% if summary.data_available %}
+        <p class="status-note">Dashboard data is available for the connected clinic models.</p>
+      {% else %}
+        <p class="status-note">Patient and queue models are not yet available in this project. Statistics will appear once the relevant module is integrated.</p>
+      {% endif %}
+
+      <section class="panel">
+        <h2>Today's patient queue</h2>
+        {% if queue.available %}
+          {% if queue.items %}
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Token</th>
+                    <th>Patient ID</th>
+                    <th>Patient name</th>
+                    <th>Assigned doctor</th>
+                    <th>Priority</th>
+                    <th>Queue status</th>
+                    <th>Registration time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in queue.items %}
+                    <tr>
+                      <td>{{ item.token_number|default:'-' }}</td>
+                      <td>{{ item.patient_id|default:'-' }}</td>
+                      <td>{{ item.patient_name|default:'-' }}</td>
+                      <td>{{ item.doctor|default:'-' }}</td>
+                      <td>{{ item.priority|default:'-' }}</td>
+                      <td>{{ item.queue_status|default:'-' }}</td>
+                      <td>{{ item.registration_time|default:'-' }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p>No patients have been registered today.</p>
+          {% endif %}
+        {% else %}
+          <p>No patients have been registered today.</p>
+          <p>The patient queue will appear once the relevant module is integrated.</p>
+        {% endif %}
+      </section>
+
+      <section class="panel">
+        <h2>Quick navigation</h2>
+        <div class="nav-grid">
+          <button type="button" class="nav-button" disabled>Patient Registration (Coming soon)</button>
+          <button type="button" class="nav-button" disabled>Payments (Coming soon)</button>
+          <button type="button" class="nav-button" disabled>Doctor Assignment (Coming soon)</button>
+          <button type="button" class="nav-button" disabled>Token Management (Coming soon)</button>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

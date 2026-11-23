@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Clinic Management System (Django)
 
 Doctor dashboard: select a doctor, register patients, manage waiting tokens, examine patients, write prescriptions, complete consultations, and review saved visit history. Emergency patients are listed first.
@@ -16,3 +17,6 @@ Optional: `python manage.py createsuperuser` for /admin/. Run tests: `python man
 ## Production
 Set env vars `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS=yourdomain.com`.
 Note: doctors are selected by name with no password; add real authentication before using with real patient data.
+=======
+# clinic-management-system
+>>>>>>> 7cac57d1a4f50c3d513839ef39061d590782c605
