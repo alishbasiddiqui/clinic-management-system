@@ -1,0 +1,75 @@
+
+{% extends 'patients/base.html' %}
+
+{% block title %}Registered Patients{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h2>Registered Patients</h2>
+        <p class="muted">View all registered patients.</p>
+    </div>
+
+    <a class="button-link"
+       href="{% url 'patients:register_patient' %}">
+        + Register Patient
+    </a>
+</div>
+
+<section class="card table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>Patient ID</th>
+                <th>Patient Name</th>
+                <th>Gender</th>
+                <th>Age</th>
+                <th>Token</th>
+                <th>Doctor</th>
+                <th>Emergency</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for patient in patients %}
+                <tr>
+                    <td>{{ patient.patient_code }}</td>
+                    <td>{{ patient.name }}</td>
+                    <td>{{ patient.get_gender_display }}</td>
+                    <td>{{ patient.age }}</td>
+                    <td>{{ patient.token|truncatechars:12 }}</td>
+
+                    <td>
+                        {% if patient.doctor_assignment %}
+                            {{ patient.doctor_assignment.get_doctor_type_display }}
+                        {% else %}
+                            Not assigned
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if patient.is_emergency %}
+                            <span class="emergency">Emergency</span>
+                        {% else %}
+                            No
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <a href="{% url 'patients:patient_detail' patient.pk %}">
+                            View
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8">No patients registered yet.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+{% endblock %}
