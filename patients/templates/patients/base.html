@@ -1,0 +1,42 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Clinic Management System{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'patients/style.css' %}">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container">
+            <h1>Clinic Management System</h1>
+
+            <nav>
+                <a href="{% url 'patients:patient_list' %}">Patients</a>
+                <a href="{% url 'patients:register_patient' %}">Register Patient</a>
+                <a href="{% url 'patients:payment_list' %}">Payments</a>
+                <a href="{% url 'patients:assignment_list' %}">Doctor Assignments</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {% for message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>Clinic Management System</p>
+    </footer>
+
+</body>
+</html>

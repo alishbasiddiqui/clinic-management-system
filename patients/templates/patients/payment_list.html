@@ -1,0 +1,57 @@
+
+{% extends 'patients/base.html' %}
+
+{% block title %}Payment Management{% endblock %}
+
+{% block content %}
+
+<section class="card">
+    <h2>Payment Management</h2>
+
+    <p class="muted">
+        View payment records for registered patients.
+    </p>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Patient Name</th>
+                    <th>Amount</th>
+                    <th>Payment Method</th>
+                    <th>Payment Status</th>
+                    <th>Payment Date</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.patient.patient_code }}</td>
+                        <td>{{ payment.patient.name }}</td>
+                        <td>{{ payment.amount }}</td>
+                        <td>{{ payment.get_payment_method_display }}</td>
+                        <td>{{ payment.get_payment_status_display }}</td>
+                        <td>{{ payment.payment_date|date:"d M Y, h:i A" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6">
+                            No payment records found yet.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <p>
+        <a class="button-link"
+           href="{% url 'patients:register_patient' %}">
+            Register a Patient
+        </a>
+    </p>
+</section>
+
+{% endblock %}
