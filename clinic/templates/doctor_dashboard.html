@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Doctor Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="brand">Clinic Management System</p>
+        <h1>Doctor Dashboard</h1>
+      </div>
+      <div class="user-bar">
+        <span>Logged in as: {{ user.get_username }}</span>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="secondary-button">Logout</button>
+        </form>
+      </div>
+    </header>
+
+    <main class="dashboard-container">
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li class="message {{ message.tags }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <section class="panel next-patient-panel">
+        <h2>Next patient</h2>
+        {% if queue.items %}
+          {% with next_patient=queue.items.0 %}
+            <div class="next-patient-card">
+              <p><strong>Token number:</strong> {{ next_patient.token_number|default:'-' }}</p>
+              <p><strong>Patient ID:</strong> {{ next_patient.patient_id|default:'-' }}</p>
+              <p><strong>Patient name:</strong> {{ next_patient.patient_name|default:'-' }}</p>
+              <p><strong>Priority:</strong> {{ next_patient.priority|default:'-' }}</p>
+              <p><strong>Queue status:</strong> {{ next_patient.queue_status|default:'-' }}</p>
+            </div>
+          {% endwith %}
+        {% else %}
+          <p>No patients are currently assigned to your queue.</p>
+        {% endif %}
+      </section>
+
+      <section class="panel">
+        <h2>Waiting queue</h2>
+        {% if queue.available %}
+          {% if queue.items %}
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Token</th>
+                    <th>Patient ID</th>
+                    <th>Patient name</th>
+                    <th>Arrival time</th>
+                    <th>Priority</th>
+                    <th>Queue status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in queue.items %}
+                    <tr>
+                      <td>{{ item.token_number|default:'-' }}</td>
+                      <td>{{ item.patient_id|default:'-' }}</td>
+                      <td>{{ item.patient_name|default:'-' }}</td>
+                      <td>{{ item.registration_time|default:'-' }}</td>
+                      <td>{{ item.priority|default:'-' }}</td>
+                      <td>{{ item.queue_status|default:'-' }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p>No patients are currently assigned to your queue.</p>
+          {% endif %}
+        {% else %}
+          <p>No patients are currently assigned to your queue.</p>
+        {% endif %}
+      </section>
+    </main>
+  </body>
+</html>
