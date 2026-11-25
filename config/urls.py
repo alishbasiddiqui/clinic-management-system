@@ -1,4 +1,5 @@
 
+
 """
 URL configuration for config project.
 """
@@ -9,6 +10,10 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("patients.urls")),
+
+    # Login and Dashboard first
     path("", include("clinic.urls")),
+
+    # Patients module
+    path("", include("patients.urls")),
 ]

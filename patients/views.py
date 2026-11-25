@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.db.models import Max
+from module3.models import QueueToken
 
 from .models import Patient, Payment, DoctorAssignment
 from .forms import PatientRegistrationForm
@@ -44,6 +46,19 @@ def register_patient(request):
                         )
                     else:
                         patient = form.save()
+
+                        # Generate next daily token
+                        last_token = QueueToken.objects.filter(
+                            token_date=today
+                        ).aggregate(max_token=Max("token_number"))["max_token"]
+
+                        next_token = (last_token or 0) + 1
+
+                        QueueToken.objects.create(
+                            patient=patient,
+                            token_number=next_token,
+                            token_date=today,
+                        )
 
                         Payment.objects.create(
                             patient=patient,
