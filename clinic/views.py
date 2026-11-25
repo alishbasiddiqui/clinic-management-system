@@ -1,4 +1,6 @@
-﻿from django.apps import apps
+﻿from patients.models import Patient, DoctorAssignment
+from module3.models import QueueToken
+from django.apps import apps
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -86,84 +88,82 @@ def _is_waiting_status(value):
         return False
     return str(value).strip().lower() in {'waiting', 'queued', 'in_queue', 'pending'}
 
+from patients.models import Patient, DoctorAssignment
+from module3.models import QueueToken
+
 
 def get_receptionist_summary():
-    total_patients_today = 0
-    waiting_patients = 0
-    emergency_waiting = 0
+    today = timezone.localdate()
 
-    patient_model = _safe_get_model('clinic', 'Patient')
-    queue_model = _safe_get_model('clinic', 'Queue') or _safe_get_model('clinic', 'PatientQueue')
+    total_patients_today = Patient.objects.filter(
+        registered_at__date=today
+    ).count()
 
-    if patient_model is not None:
-        date_field = _date_field_for(patient_model)
-        if date_field:
-            total_patients_today = patient_model.objects.filter(**{f'{date_field}__date': timezone.localdate()}).count()
+    waiting_patients = QueueToken.objects.filter(
+        token_date=today,
+        status="Waiting"
+    ).count()
 
-    if queue_model is not None:
-        status_field = _status_field_for(queue_model)
-        emergency_field = _emergency_field_for(queue_model)
-
-        if status_field:
-            status_values = [
-                str(value).strip().lower()
-                for value in queue_model.objects.values_list(status_field, flat=True)
-                if value is not None
-            ]
-            waiting_patients = sum(1 for value in status_values if _is_waiting_status(value))
-
-        if emergency_field:
-            emergency_values = [
-                value for value in queue_model.objects.values_list(emergency_field, flat=True)
-                if value in (True, 'true', 'yes', 'urgent', 'emergency')
-            ]
-            if status_field:
-                emergency_waiting = sum(
-                    1
-                    for item in queue_model.objects.filter(**{emergency_field: True}).values_list(status_field, flat=True)
-                    if _is_waiting_status(item)
-                )
-            else:
-                emergency_waiting = len(emergency_values)
+    emergency_waiting = QueueToken.objects.filter(
+        token_date=today,
+        status="Waiting",
+        patient__is_emergency=True
+    ).count()
 
     return {
         'patients_registered_today': total_patients_today,
         'waiting_patients': waiting_patients,
         'emergency_waiting': emergency_waiting,
-        'data_available': patient_model is not None or queue_model is not None,
+        'data_available': True,
     }
 
 
 def get_receptionist_queue():
-    queue_model = _safe_get_model('clinic', 'Queue') or _safe_get_model('clinic', 'PatientQueue')
-    if queue_model is None:
-        return {'items': [], 'available': False}
+    today = timezone.localdate()
 
-    status_field = _status_field_for(queue_model)
-    queryset = queue_model.objects.all()
-    if status_field is not None:
-        queryset = queryset.order_by(status_field)
-    return {'items': list(queryset[:20]), 'available': True}
+    queryset = QueueToken.objects.filter(
+        token_date=today
+    ).select_related('patient').order_by(
+        '-patient__is_emergency',
+        'token_number'
+    )
+
+    return {
+        'items': list(queryset[:20]),
+        'available': True,
+    }
 
 
 def get_doctor_queue(user):
-    queue_model = _safe_get_model('clinic', 'Queue') or _safe_get_model('clinic', 'PatientQueue')
-    if queue_model is None:
-        return {'items': [], 'available': False}
+    today = timezone.localdate()
 
-    doctor_field = next(
-        (name for name in ('doctor', 'assigned_doctor', 'doctor_id', 'assigned_to') if hasattr(queue_model, name)),
-        None,
+    doctor_type = None
+
+    if user.username == 'doctor1':
+        doctor_type = 'main_doctor'
+
+    elif user.username == 'doctor2':
+        doctor_type = 'substitute_doctor'
+
+    if doctor_type is None:
+        return {
+            'items': [],
+            'available': True,
+        }
+
+    queryset = QueueToken.objects.filter(
+        token_date=today,
+        status="Waiting",
+        patient__doctor_assignment__doctor_type=doctor_type
+    ).select_related('patient').order_by(
+        '-patient__is_emergency',
+        'token_number'
     )
-    if doctor_field is None:
-        return {'items': [], 'available': True}
 
-    queryset = queue_model.objects.filter(**{doctor_field: user})
-    status_field = _status_field_for(queue_model)
-    if status_field:
-        queryset = queryset.order_by(status_field)
-    return {'items': list(queryset[:20]), 'available': True}
-
+    return {
+        'items': list(queryset[:20]),
+        'available': True,
+    }
 
 def redirect_to_login_if_needed(request):
     if request.user.is_authenticated:

@@ -10,19 +10,19 @@ User = get_user_model()
 
 class ClinicAuthenticationTests(TestCase):
     def create_user(self, user, password, role=None):
-        user = User.objects.create_user(username=username, password=password)
+        user = User.objects.create_user(username=user, password=password)
         if role:
             ClinicProfile.objects.create(user=user, role=role)
         return user
 
     def test_anonymous_user_cannot_access_receptionist_dashboard(self):
         response = self.client.get(reverse('receptionist_dashboard'))
-        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.status_code, 302)
         self.assertIn('/login/', response.url)
 
     def test_anonymous_user_cannot_access_doctor_dashboard(self):
         response = self.client.get(reverse('doctor_dashboard'))
-        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.status_code, 302)
         self.assertIn('/login/', response.url)
 
     def test_receptionist_can_log_in_successfully(self):
@@ -50,7 +50,7 @@ class ClinicAuthenticationTests(TestCase):
         self.client.force_login(user)
 
         response = self.client.get(reverse('receptionist_dashboard'))
-        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.status_code, 302)
         self.assertIn('/login/', response.url)
 
     def test_user_with_missing_role_profile_is_handled_safely(self):
@@ -65,7 +65,7 @@ class ClinicAuthenticationTests(TestCase):
         self.client.force_login(user)
 
         response = self.client.get(reverse('doctor_dashboard'))
-        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.status_code, 302)
         self.assertIn('/login/', response.url)
 
     def test_doctor_cannot_view_receptionist_dashboard(self):
@@ -73,7 +73,7 @@ class ClinicAuthenticationTests(TestCase):
         self.client.force_login(user)
 
         response = self.client.get(reverse('receptionist_dashboard'))
-        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.status_code, 302)
         self.assertIn('/login/', response.url)
 
     def test_logout_works_for_post_and_clears_session(self):
@@ -82,7 +82,7 @@ class ClinicAuthenticationTests(TestCase):
 
         response = self.client.post(reverse('logout'))
 
-        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('login'))
         self.assertNotIn('_auth_user_id', self.client.session)
 
@@ -115,5 +115,5 @@ class ClinicAuthenticationTests(TestCase):
 
         response = self.client.get('/receptionist-dashboard/')
 
-        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.status_code, 302)
         self.assertIn('/login/', response.url)

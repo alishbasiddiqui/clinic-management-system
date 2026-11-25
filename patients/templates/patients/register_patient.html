@@ -1,0 +1,59 @@
+
+{% extends 'patients/base.html' %}
+
+{% block title %}Register Patient{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>Patient Registration</h2>
+
+    <p class="muted">
+        Enter patient details, payment and doctor assignment.
+    </p>
+
+    <div class="daily-limit">
+        <h3>Daily Registration Limit</h3>
+
+        <p>
+            Today's Registrations:
+            <strong>{{ daily_patient_count }} / {{ daily_limit }}</strong>
+        </p>
+
+        {% if daily_patient_count >= daily_limit %}
+            <p class="error">
+                Today's registration limit has been reached.
+                Please register new patients tomorrow.
+            </p>
+        {% else %}
+            <p class="muted">
+                Registration is available until the daily limit is reached.
+            </p>
+        {% endif %}
+    </div>
+
+    {% if daily_patient_count < daily_limit %}
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            {% for field in form %}
+                <div class="form-field">
+                    {{ field.label_tag }}
+                    {{ field }}
+
+                    {% for error in field.errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <button type="submit">Register Patient</button>
+        </form>
+    {% else %}
+        <p class="error">
+            Patient registration is currently unavailable.
+        </p>
+    {% endif %}
+</section>
+{% endblock %}

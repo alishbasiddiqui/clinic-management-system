@@ -1,0 +1,23 @@
+{% extends "doctor/base.html" %}
+{% block title %}Register patient{% endblock %}
+{% block content %}
+<p><a class="secondary-link" href="{% url 'dashboard' %}">&larr; Back to dashboard</a></p>
+<div class="card">
+    <h2>Register a patient</h2>
+    <p class="muted">The patient will be assigned to {{ doctor_name }} and given the next available token.</p>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<p class="muted">{{ field.help_text }}</p>{% endif %}
+            {% for error in field.errors %}<p class="form-errors">{{ error }}</p>{% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}<p class="form-errors">{{ error }}</p>{% endfor %}
+        <div class="form-actions">
+            <button type="submit">Save patient</button>
+            <a class="secondary-link" href="{% url 'dashboard' %}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
