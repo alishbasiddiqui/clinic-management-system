@@ -9,7 +9,7 @@ User = get_user_model()
 
 
 class ClinicAuthenticationTests(TestCase):
-    def create_user(self, user, password, role=None):
+    def create_user(self, username, password, role=None):
         user = User.objects.create_user(username=username, password=password)
         if role:
             ClinicProfile.objects.create(user=user, role=role)
@@ -17,7 +17,7 @@ class ClinicAuthenticationTests(TestCase):
 
     def test_anonymous_user_cannot_access_receptionist_dashboard(self):
         response = self.client.get(reverse('receptionist_dashboard'))
-        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.status_code, 302)
         self.assertIn('/login/', response.url)
 
     def test_anonymous_user_cannot_access_doctor_dashboard(self):
