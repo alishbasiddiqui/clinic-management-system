@@ -5,13 +5,13 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
-from django.test import SimpleTestCase, TestCase
+from django.test import SimpleTestCase, TestCase, override_settings
 
 from .models import Patient, Prescription, Visit
 
 
 def load_consultation_module():
-    module_path = Path(__file__).resolve().parents[1] / "consultaion and prescription module.py"
+    module_path = Path(__file__).resolve().parents[1] / "doctor_module.py"
     spec = importlib.util.spec_from_file_location("consultation_prescription_module", module_path)
     module = importlib.util.module_from_spec(spec)
     assert spec is not None and spec.loader is not None
@@ -96,6 +96,7 @@ class ConsultationPrescriptionModuleTests(SimpleTestCase):
         self.assertEqual(patients[0]["doctor"], "Dr. Ahmed")
 
 
+@override_settings(ROOT_URLCONF="doctor.urls")
 class ClinicWorkflowTests(TestCase):
     def setUp(self):
         Patient.objects.create(
