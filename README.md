@@ -1,22 +1,43 @@
-<<<<<<< HEAD
-# Clinic Management System (Django)
+# Clinic Management System
 
-Doctor dashboard: select a doctor, register patients, manage waiting tokens, examine patients, write prescriptions, complete consultations, and review saved visit history. Emergency patients are listed first.
+A Django-based clinic workflow project for receptionist and doctor roles.
 
-## Run
-    pip install -r requirements.txt
-    python manage.py migrate
-    python manage.py seed_patients
-    python manage.py runserver
-Open http://127.0.0.1:8000/
+## Current project modules
 
-After selecting a doctor, use **Register patient** to add records assigned to that doctor. The application stores patient and consultation data in `db.sqlite3`; `clinic_data.json` is only used by the separate legacy console module.
+- Receptionist login and dashboard
+- Patient registration, payments, and doctor assignment
+- Doctor consultation, examination notes, prescriptions, and visit history
+- Emergency-first ordering in the doctor consultation module
 
-Optional: `python manage.py createsuperuser` for /admin/. Run tests: `python manage.py test`.
+## Requirements
 
-## Production
-Set env vars `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS=yourdomain.com`.
-Note: doctors are selected by name with no password; add real authentication before using with real patient data.
-=======
-# clinic-management-system
->>>>>>> 7cac57d1a4f50c3d513839ef39061d590782c605
+- Python 3.14
+- Django 6.1.2
+- SQLite (development database)
+
+## Run locally
+
+```bash
+python -m venv .venv
+# Windows PowerShell:
+.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+Open http://127.0.0.1:8000/ and use the login page.
+
+## Run tests
+
+```bash
+python manage.py check
+python manage.py makemigrations --check --dry-run
+python manage.py test
+```
+
+## Notes
+
+- The application is under active development and is not production-ready.
+- Configure a unique `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, and `DJANGO_ALLOWED_HOSTS` before deployment.
+- Do not commit local databases, environment files, or Python cache files.
